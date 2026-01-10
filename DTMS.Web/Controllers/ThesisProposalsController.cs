@@ -55,46 +55,21 @@ public class ThesisProposalsController : Controller
              return View(vm);
         }
 
-        try 
+        await _mediator.Send(new CreateThesisProposalCommand
         {
-            await _mediator.Send(new CreateThesisProposalCommand
-            {
-                Title = model.Title,
-                Abstract = model.Abstract,
-                AdvisorId = model.AdvisorId,
-                TermId = model.TermId
-            });
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("", "Error creating proposal: " + ex.Message);
-            var vm = await _mediator.Send(new GetCreateProposalPageQuery());
-             // Copy input back
-             vm.Title = model.Title;
-             vm.Abstract = model.Abstract;
-             vm.AdvisorId = model.AdvisorId;
-             vm.TermId = model.TermId;
-             return View(vm);
-        }
+            Title = model.Title,
+            Abstract = model.Abstract,
+            AdvisorId = model.AdvisorId,
+            TermId = model.TermId
+        });
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     [Authorize(Roles = "Advisor")]
     public async Task<IActionResult> Review(Guid id)
     {
-        try
-        {
-            return View(await _mediator.Send(new GetProposalForReviewQuery(id)));
-        }
-        catch (NotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        return View(await _mediator.Send(new GetProposalForReviewQuery(id)));
     }
 
     [HttpPost]
@@ -102,20 +77,11 @@ public class ThesisProposalsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Review(ReviewProposalVm model)
     {
-        try
-        {
-             await _mediator.Send(new ReviewThesisProposalCommand(
-                 model.ProposalId,
-                 model.IsApproved,
-                 model.Comment
-             ));
-             return RedirectToAction(nameof(Index));
-        }
-        catch(Exception ex)
-        {
-             ModelState.AddModelError("", ex.Message);
-             return View(model);
-        }
+        await _mediator.Send(new ReviewThesisProposalCommand(
+            model.ProposalId,
+            model.IsApproved,
+            model.Comment
+        ));
+        return RedirectToAction(nameof(Index));
     }
 }
-

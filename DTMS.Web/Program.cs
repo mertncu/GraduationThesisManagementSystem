@@ -26,9 +26,12 @@ builder.Services.AddScoped<GTMS.Persistence.Seeding.DbSeeder>();
 
 var app = builder.Build();
 
+// Global Exception Handler
+app.UseMiddleware<DTMS.Web.Middleware.GlobalExceptionMiddleware>();
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    // The middleware handles exceptions, but HSTS is still needed
     app.UseHsts();
 }
 

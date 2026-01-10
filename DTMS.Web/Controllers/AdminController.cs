@@ -67,51 +67,24 @@ public class AdminController : Controller
              return View(vm);
         }
 
-        try
-        {
-            await _mediator.Send(new CreateUserCommand(
-                model.FirstName, 
-                model.LastName, 
-                model.Email, 
-                model.Password, 
-                model.Role, 
-                model.PhoneNumber,
-                model.DepartmentId,
-                model.ProgramId,
-                model.StudentNumber
-            ));
-            return RedirectToAction(nameof(Users));
-        }
-        catch (Exception ex)
-        {
-             ModelState.AddModelError(string.Empty, ex.Message);
-             // Reload
-             var vm = await _mediator.Send(new GetCreateUserPageQuery());
-             // Copy input back
-             vm.FirstName = model.FirstName;
-             vm.LastName = model.LastName;
-             vm.Email = model.Email;
-             vm.Role = model.Role;
-             vm.DepartmentId = model.DepartmentId;
-             vm.ProgramId = model.ProgramId;
-             vm.StudentNumber = model.StudentNumber;
-             vm.PhoneNumber = model.PhoneNumber;
-             
-             return View(vm);
-        }
+        await _mediator.Send(new CreateUserCommand(
+            model.FirstName, 
+            model.LastName, 
+            model.Email, 
+            model.Password, 
+            model.Role, 
+            model.PhoneNumber,
+            model.DepartmentId,
+            model.ProgramId,
+            model.StudentNumber
+        ));
+        return RedirectToAction(nameof(Users));
     }
 
     [HttpGet]
     public async Task<IActionResult> EditUser(Guid id)
     {
-        try 
-        {
-            return View(await _mediator.Send(new GetEditUserPageQuery(id)));
-        }
-        catch (GTMS.Application.Common.Exceptions.NotFoundException)
-        {
-            return NotFound();
-        }
+        return View(await _mediator.Send(new GetEditUserPageQuery(id)));
     }
 
     [HttpPost]
@@ -124,39 +97,23 @@ public class AdminController : Controller
              return View(vm);
         }
 
-        try
-        {
-            await _mediator.Send(new UpdateUserCommand(
-                model.UserId,
-                model.FirstName,
-                model.LastName,
-                model.Email,
-                model.PhoneNumber,
-                model.DepartmentId,
-                model.ProgramId,
-                model.StudentNumber
-            ));
-            return RedirectToAction(nameof(Users));
-        }
-        catch (Exception ex)
-        {
-             ModelState.AddModelError(string.Empty, ex.Message);
-             var vm = await _mediator.Send(new GetEditUserPageQuery(model.UserId));
-             return View(vm);
-        }
+        await _mediator.Send(new UpdateUserCommand(
+            model.UserId,
+            model.FirstName,
+            model.LastName,
+            model.Email,
+            model.PhoneNumber,
+            model.DepartmentId,
+            model.ProgramId,
+            model.StudentNumber
+        ));
+        return RedirectToAction(nameof(Users));
     }
 
     [HttpPost]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        try
-        {
-            await _mediator.Send(new DeleteUserCommand(id));
-        }
-        catch(Exception ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
+        await _mediator.Send(new DeleteUserCommand(id));
         return RedirectToAction(nameof(Users));
     }
 

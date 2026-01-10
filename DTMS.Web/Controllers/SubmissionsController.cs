@@ -24,25 +24,18 @@ public class SubmissionsController : Controller
              return RedirectToAction("Details", "ThesisProjects", new { id = model.ThesisId });
         }
 
-        try 
+        using (var stream = model.File.OpenReadStream())
         {
-            using (var stream = model.File.OpenReadStream())
+            var command = new CreateSubmissionCommand
             {
-                var command = new CreateSubmissionCommand
-                {
-                    ThesisId = model.ThesisId,
-                    MilestoneId = model.MilestoneId,
-                    Notes = model.Notes,
-                    FileContent = stream,
-                    FileName = model.File.FileName
-                };
+                ThesisId = model.ThesisId,
+                MilestoneId = model.MilestoneId,
+                Notes = model.Notes,
+                FileContent = stream,
+                FileName = model.File.FileName
+            };
 
-                await _mediator.Send(command);
-            }
-        }
-        catch (Exception ex)
-        {
-            TempData["Error"] = ex.Message;
+            await _mediator.Send(command);
         }
 
         return RedirectToAction("Details", "ThesisProjects", new { id = model.ThesisId });
@@ -59,14 +52,7 @@ public class SubmissionsController : Controller
             Feedback = model.Feedback
         };
 
-        try 
-        {
-            await _mediator.Send(command);
-        }
-        catch (Exception ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
+        await _mediator.Send(command);
 
         // We need ThesisId for redirect. Ideally passed in view model or fetched. 
         // For simplicity, passing ThesisId from form.
