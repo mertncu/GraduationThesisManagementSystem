@@ -45,4 +45,19 @@ public class MonthlyReportsController : Controller
         await _mediator.Send(command);
         return RedirectToAction(nameof(Index), new { thesisId = command.ThesisId });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Advisor")]
+    public async Task<IActionResult> Review(Guid thesisId, Guid reportId, string comment, bool isApproved)
+    {
+        await _mediator.Send(new GTMS.Application.Features.Thesis.MonthlyReports.Commands.ReviewMonthlyReport.ReviewMonthlyReportCommand
+        {
+            ReportId = reportId,
+            Comment = comment,
+            IsApproved = isApproved
+        });
+        
+        return RedirectToAction(nameof(Index), new { thesisId = thesisId });
+    }
 }

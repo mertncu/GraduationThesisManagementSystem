@@ -60,6 +60,37 @@
                             }
                         </div>
                     }
+
+                    @if (User.IsInRole("Advisor"))
+                    {
+                        <hr class="my-3">
+                        <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#reviewPanel-@report.Id">
+                            <i class="bi bi-pencil-square me-1"></i> Review / Edit Feedback
+                        </button>
+                        
+                        <div class="collapse mt-3" id="reviewPanel-@report.Id">
+                            <div class="card card-body bg-light">
+                                <form asp-action="Review" method="post">
+                                    <input type="hidden" name="thesisId" value="@thesisId" />
+                                    <input type="hidden" name="reportId" value="@report.Id" />
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold small">Feedback / Comment</label>
+                                        <textarea name="comment" class="form-control" rows="3">@report.AdvisorComment</textarea>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="submit" name="isApproved" value="false" class="btn btn-warning btn-sm">
+                                            Request Revision
+                                        </button>
+                                        <button type="submit" name="isApproved" value="true" class="btn btn-success btn-sm">
+                                            <i class="bi bi-check-lg me-1"></i> Approve
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    }
                 </div>
             }
         </div>
