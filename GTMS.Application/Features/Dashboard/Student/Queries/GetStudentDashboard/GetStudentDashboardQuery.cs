@@ -29,6 +29,7 @@ public class GetStudentDashboardQueryHandler : IRequestHandler<GetStudentDashboa
         }
 
         var thesis = await _context.ThesisProjects
+            .Include(t => t.Term) // Added Include
             .Include(t => t.ThesisMilestones)
                 .ThenInclude(m => m.Submissions)
                     .ThenInclude(s => s.SubmissionStatus)
@@ -55,6 +56,7 @@ public class GetStudentDashboardQueryHandler : IRequestHandler<GetStudentDashboa
         {
             ThesisId = thesis.Id,
             ThesisTitle = thesis.Title,
+            Term = thesis.Term.Name, // Added
             ThesisAbstract = thesis.Abstract,
             AdvisorName = $"{thesis.MainAdvisor.FirstName} {thesis.MainAdvisor.LastName}",
             RemainingMilestones = thesis.ThesisMilestones.Count(m => !m.Submissions.Any(s => s.SubmissionStatus != null && s.SubmissionStatus.Name == "Approved")),

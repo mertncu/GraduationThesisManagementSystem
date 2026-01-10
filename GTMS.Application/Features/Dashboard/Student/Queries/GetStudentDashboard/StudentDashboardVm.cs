@@ -4,6 +4,7 @@ public class StudentDashboardVm
 {
     public Guid ThesisId { get; set; }
     public string ThesisTitle { get; set; } = string.Empty;
+    public string Term { get; set; } = string.Empty; // Added
     public string ThesisAbstract { get; set; } = string.Empty;
     public string AdvisorName { get; set; } = string.Empty;
     public int RemainingMilestones { get; set; }

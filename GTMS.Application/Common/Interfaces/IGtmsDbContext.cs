@@ -32,6 +32,7 @@ public interface IGtmsDbContext
     DbSet<Submission> Submissions { get; }
     DbSet<SubmissionStatus> SubmissionStatuses { get; }
     DbSet<Comment> Comments { get; }
+    DbSet<GTMS.Domain.Entities.Thesis.MonthlyReport> MonthlyReports { get; }
     
     DbSet<Committee> Committees { get; }
     DbSet<CommitteeMember> CommitteeMembers { get; }

@@ -50,6 +50,7 @@ public class GtmsDbContext : DbContext, IGtmsDbContext
     public DbSet<AttachmentType> AttachmentTypes { get; set; }
     public DbSet<SubmissionStatus> SubmissionStatuses { get; set; }
     public DbSet<Comment> Comments { get; set; }
+    public DbSet<GTMS.Domain.Entities.Thesis.MonthlyReport> MonthlyReports { get; set; }
 
     // System
     public DbSet<ActivityLog> ActivityLogs { get; set; }
