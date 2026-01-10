@@ -29,9 +29,9 @@ public class CreateSubmissionHandler : IRequestHandler<CreateSubmissionCommand>
 
         var studentId = _currentUserService.UserId ?? throw new UnauthorizedAccessException();
         
-        // Fetch 'Pending' status. Assuming specific name 'Pending' exists.
-        var status = await _context.SubmissionStatuses.FirstOrDefaultAsync(s => s.Name == "Pending", cancellationToken);
-        if (status == null) throw new InvalidOperationException("Submission Status 'Pending' not found in database.");
+        // Fetch 'Submitted' status.
+        var status = await _context.SubmissionStatuses.FirstOrDefaultAsync(s => s.Name == "Submitted", cancellationToken);
+        if (status == null) throw new InvalidOperationException("Submission Status 'Submitted' not found in database.");
 
         var submission = new Domain.Entities.Submission.Submission
         {
