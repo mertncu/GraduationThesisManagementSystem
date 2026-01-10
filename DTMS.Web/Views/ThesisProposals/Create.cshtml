@@ -1,0 +1,59 @@
+@model GTMS.Application.Features.Thesis.ThesisProposals.Dtos.CreateProposalPageVm
+
+@{
+    ViewData["Title"] = "Create Thesis Proposal";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">New Thesis Proposal</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.WarningMessage))
+            {
+                <div class="alert alert-warning">@Model.WarningMessage</div>
+            }
+            
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label">Thesis Title</label>
+                    <input asp-for="Title" class="form-control" placeholder="Proposed Thesis Title" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Abstract" class="form-label">Abstract</label>
+                    <textarea asp-for="Abstract" class="form-control" rows="5"></textarea>
+                    <span asp-validation-for="Abstract" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="AdvisorId" class="form-label">Proposed Advisor</label>
+                         <select asp-for="AdvisorId" class="form-control" asp-items="@(new SelectList(Model.Advisors, "Id", "Name"))">
+                            <option value="">-- Select Advisor --</option>
+                        </select>
+                        <span asp-validation-for="AdvisorId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TermId" class="form-label">Academic Term</label>
+                         <select asp-for="TermId" class="form-control" asp-items="@(new SelectList(Model.Terms, "Id", "Name"))">
+                            <option value="">-- Select Term --</option>
+                        </select>
+                        <span asp-validation-for="TermId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Submit Proposal</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

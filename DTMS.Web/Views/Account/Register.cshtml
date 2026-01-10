@@ -1,0 +1,72 @@
+@model DTMS.Web.Controllers.AccountController.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_AuthLayout";
+}
+
+<div class="auth-content">
+    <div class="text-center mb-4">
+        <h2 class="auth-header">Student Registration</h2>
+    </div>
+
+    <form asp-action="Register" method="post">
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p class="mb-0">@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="FirstName" class="form-label">First Name:</label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="LastName" class="form-label">Last Name:</label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StudentNumber" class="form-label">Student Number (Optional):</label>
+            <input asp-for="StudentNumber" class="form-control" />
+            <span asp-validation-for="StudentNumber" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">E-mail:</label>
+            <input asp-for="Email" class="form-control" placeholder="student@isik.edu.tr" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">Password:</label>
+            <input asp-for="Password" type="password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="ConfirmPassword" class="form-label">Confirm Password:</label>
+            <input asp-for="ConfirmPassword" type="password" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+        </div>
+
+        <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary-custom btn-lg">Register</button>
+        </div>
+
+        <div class="text-center auth-links">
+            <a asp-action="Login">Already have an account? Login here.</a>
+        </div>
+    </form>
+
+    <div class="footer-text">
+        2025 © FMV Işık University - Center for Educational Technologies
+    </div>
+</div>

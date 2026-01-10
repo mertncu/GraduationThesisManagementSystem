@@ -1,0 +1,48 @@
+@model IEnumerable<GTMS.Domain.Entities.Thesis.ThesisProject>
+
+@{
+    ViewData["Title"] = "My Theses";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2>My Theses</h2>
+    </div>
+    <div class="col text-end">
+        <a asp-action="Create" class="btn btn-primary">+ New Proposal</a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No theses found.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Role</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>
+                        <span class="badge bg-secondary">@item.ThesisStatus?.Name</span>
+                    </td>
+                    <td>
+                         @* Determine logic or standard show *@
+                         View
+                    </td>
+                    <td>@item.CreatedAt.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

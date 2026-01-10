@@ -1,0 +1,39 @@
+@model GTMS.Application.Features.Thesis.ThesisProposals.Commands.CreateThesisProposal.CreateThesisProposalCommand
+
+@{
+    ViewData["Title"] = "New Proposal";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h3>Submit Thesis Proposal</h3>
+            <form asp-action="Create">
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Abstract" class="form-label"></label>
+                    <textarea asp-for="Abstract" class="form-control" rows="5"></textarea>
+                    <span asp-validation-for="Abstract" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Term ID (Temp)</label>
+                    <input asp-for="TermId" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Advisor ID (Temp)</label>
+                    <input asp-for="AdvisorId" class="form-control" />
+                </div>
+
+                <button type="submit" class="btn btn-success">Submit Proposal</button>
+                <a asp-action="Index" class="btn btn-link">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

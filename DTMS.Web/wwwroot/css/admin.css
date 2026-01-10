@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #003366;
+    --secondary-color: #fca311;
+    --text-color: #333333;
+    --sidebar-width: 380px;
+    --sidebar-bg: #ffffff;
+    --content-bg: #f8f9fa;
+}
+
+body {
+    font-family: 'Gilroy', sans-serif;
+    color: var(--text-color);
+    background-color: var(--content-bg);
+    overflow-x: hidden;
+}
+
+#wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+#sidebar-wrapper {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    margin-left: 0;
+    transition: margin 0.25s ease-out;
+    background-color: var(--sidebar-bg);
+    position: fixed;
+    z-index: 1000;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#page-content-wrapper {
+    width: 100%;
+    margin-left: var(--sidebar-width);
+    transition: margin 0.25s ease-out;
+    background-color: var(--content-bg);
+}
+
+body.sb-sidenav-toggled #sidebar-wrapper {
+    margin-left: calc(-1 * var(--sidebar-width));
+}
+
+body.sb-sidenav-toggled #page-content-wrapper {
+    margin-left: 0;
+}
+
+
+/* Navigation Styling */
+.list-group-item-action {
+    color: #555;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.list-group-item-action:hover {
+    color: var(--primary-color);
+    background-color: #f0f4f8;
+    border-left: 4px solid var(--primary-color) !important;
+    padding-left: calc(1.5rem - 4px) !important;
+    /* Adjust padding to keep text aligned */
+}
+
+.active-nav-link {
+    color: var(--primary-color);
+    background-color: #eef2f7;
+    border-left: 4px solid var(--primary-color) !important;
+    padding-left: calc(1.5rem - 4px) !important;
+    font-weight: 600;
+}
+
+/* Navbar */
+.navbar {
+    z-index: 999;
+    background-color: #263692;
+    height: 109px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #sidebar-wrapper {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+
+    #page-content-wrapper {
+        margin-left: 0;
+    }
+
+    body.sb-sidenav-toggled #sidebar-wrapper {
+        margin-left: 0;
+    }
+
+    body.sb-sidenav-toggled #page-content-wrapper {
+        margin-left: 0;
+        /* Overlay effect could be added here */
+    }
+}

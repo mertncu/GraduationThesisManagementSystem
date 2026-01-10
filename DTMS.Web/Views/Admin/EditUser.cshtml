@@ -1,0 +1,164 @@
+@model GTMS.Application.Features.Identity.Users.Dtos.EditUserPageVm
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Edit User</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a asp-action="Users" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Users
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="EditUser" method="post">
+                    <input type="hidden" asp-for="UserId" />
+                    <input type="hidden" asp-for="Role" id="roleSelect" />
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <h5 class="card-title mb-4 fw-light text-primary">User Details</h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label">First Name</label>
+                            <input asp-for="FirstName" class="form-control" required />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label">Last Name</label>
+                            <input asp-for="LastName" class="form-control" required />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" type="email" class="form-control" required />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                         <div class="col-12">
+                            <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="PhoneNumber" type="tel" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <hr class="my-4" />
+                            <h5 class="card-title mb-3 fw-light text-primary">Academic Role: @Model.Role</h5>
+                        </div>
+
+                        <div id="departmentSection" class="col-12" style="display:none;">
+                            <label asp-for="DepartmentId" class="form-label">Department</label>
+                            <select asp-for="DepartmentId" class="form-select" asp-items="@(new SelectList(Model.Departments, "Id", "Name"))">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+
+                         <div id="programSection" class="col-12" style="display:none;">
+                            <label asp-for="ProgramId" class="form-label">Program</label>
+                            <select asp-for="ProgramId" class="form-select" asp-items="@(new SelectList(Model.Programs, "Id", "Name"))">
+                                <option value="">-- Select Program --</option>
+                            </select>
+                        </div>
+
+                        <div id="studentNumberSection" class="col-12" style="display:none;">
+                            <label asp-for="StudentNumber" class="form-label">Student Number</label>
+                            <input asp-for="StudentNumber" class="form-control" />
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function loadPrograms() {
+            var deptSelect = document.getElementById('DepartmentId');
+            var progSelect = document.getElementById('ProgramId');
+            var deptId = deptSelect.value;
+            
+            progSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (deptId) {
+                try {
+                    const response = await fetch('/Admin/GetProgramsByDepartment?departmentId=' + deptId);
+                    if (response.ok) {
+                        const programs = await response.json();
+                        progSelect.innerHTML = '<option value="">-- Select Program --</option>';
+                        programs.forEach(p => {
+                            var option = document.createElement('option');
+                            option.value = p.id;
+                            option.text = p.name;
+                            progSelect.appendChild(option);
+                            
+                            if ("@Model.ProgramId" && p.id === "@Model.ProgramId") {
+                                option.selected = true;
+                            }
+                        });
+                    } else {
+                        progSelect.innerHTML = '<option value="">Error loading</option>';
+                    }
+                } catch (e) {
+                    console.error(e);
+                    progSelect.innerHTML = '<option value="">Error</option>';
+                }
+            } else {
+                progSelect.innerHTML = '<option value="">-- Select Department First --</option>';
+            }
+        }
+
+        function toggleFields() {
+            var role = document.getElementById('roleSelect').value;
+             var deptSection = document.getElementById('departmentSection');
+            var progSection = document.getElementById('programSection');
+            var stuNumSection = document.getElementById('studentNumberSection');
+
+            deptSection.style.display = 'none';
+            progSection.style.display = 'none';
+            stuNumSection.style.display = 'none';
+
+            if (role === 'Student') {
+                deptSection.style.display = 'block';
+                progSection.style.display = 'block';
+                stuNumSection.style.display = 'block';
+            } else if (role === 'Advisor') {
+                deptSection.style.display = 'block';
+            }
+        }
+
+        document.getElementById('DepartmentId').addEventListener('change', loadPrograms);
+        
+        toggleFields();
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

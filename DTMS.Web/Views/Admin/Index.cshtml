@@ -1,0 +1,83 @@
+@model GTMS.Application.Features.Dashboard.Admin.Queries.GetDashboardStats.AdminDashboardVm
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">System Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export Report</button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-primary mb-3 h-100 shadow-sm">
+            <div class="card-header">Total Users</div>
+            <div class="card-body">
+                <h5 class="card-title display-4">@Model.TotalUsers</h5>
+                <p class="card-text">Registered students and advisors.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-success mb-3 h-100 shadow-sm">
+            <div class="card-header">Total Theses</div>
+            <div class="card-body">
+                <h5 class="card-title display-4">@Model.TotalTheses</h5>
+                <p class="card-text">Active and completed projects.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-warning mb-3 h-100 shadow-sm">
+            <div class="card-header">Active Terms</div>
+            <div class="card-body">
+                <h5 class="card-title display-4 text-dark">@Model.ActiveTerms</h5>
+                <p class="card-text text-dark">Currently active academic terms.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-danger mb-3 h-100 shadow-sm">
+            <div class="card-header">Pending Approvals</div>
+            <div class="card-body">
+                <h5 class="card-title display-4">@Model.PendingApprovals</h5>
+                <p class="card-text">Proposals waiting for review.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a asp-action="Users" class="list-group-item list-group-item-action">
+                    <i class="bi bi-people me-2"></i> Manage Users
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <i class="bi bi-calendar-event me-2"></i> Manage Academic Terms
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <i class="bi bi-gear me-2"></i> System Settings
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted text-center py-4">No recent activity log implemented yet.</p>
+            </div>
+        </div>
+    </div>
+</div>

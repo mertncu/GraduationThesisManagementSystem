@@ -1,0 +1,210 @@
+@model GTMS.Application.Features.Dashboard.Student.Queries.GetStudentDashboard.StudentDashboardVm
+
+@{
+    ViewData["Title"] = "My Dashboard";
+}
+
+<style>
+    .compact-card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        height: 100%;
+        background: #fff;
+    }
+    .compact-header {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #6c757d;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .fs-7 { font-size: 0.75rem; }
+    
+    /* Compact Calendar */
+    .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        text-align: center;
+    }
+    .cal-head {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #adb5bd;
+        margin-bottom: 4px;
+    }
+    .cal-day {
+        min-height: 80px;
+        border: 1px solid #f8f9fa;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        position: relative;
+        background: #fff;
+        padding: 2px;
+    }
+    .cal-day.today {
+        background-color: #f0f8ff;
+        border-color: #a6cbfd;
+    }
+    .cal-day:hover {
+        border-color: #dee2e6;
+    }
+    .cal-event {
+        font-size: 0.65rem;
+        background: #e7f1ff;
+        color: #0d6efd;
+        padding: 1px 3px;
+        border-radius: 3px;
+        margin-top: 2px;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: left;
+        cursor: help;
+    }
+</style>
+
+<div class="container-fluid p-0">
+    <!-- Slim Header Row: Thesis Context -->
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-9">
+            <h5 class="fw-bold text-primary mb-0">
+                <i class="bi bi-mortarboard-fill me-2"></i>@Model.ThesisTitle
+            </h5>
+            <div class="d-flex align-items-center text-muted small mt-1">
+                <span class="me-3"><i class="bi bi-person-circle me-1"></i> @Model.AdvisorName</span>
+                @{
+                    var progress = Model.TotalMilestones > 0 ? (int)((double)(Model.TotalMilestones - Model.RemainingMilestones) / Model.TotalMilestones * 100) : 0;
+                }
+                <div class="progress me-2" style="width: 100px; height: 6px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: @progress%"></div>
+                </div>
+                <span>@progress% Complete</span>
+            </div>
+        </div>
+        <div class="col-md-3 text-end">
+             <a asp-controller="ThesisProjects" asp-action="Details" asp-route-id="@Model.ThesisId" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-folder2-open me-1"></i> Project Workspace
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="row g-3">
+        
+        <!-- Left Column: Calendar (Biggest area) -->
+        <div class="col-lg-8">
+            <div class="compact-card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="compact-header p-0 border-0"><i class="bi bi-calendar3 me-2"></i>@DateTime.Now.ToString("MMMM yyyy")</span>
+                    <span class="badge bg-light text-dark border">Today: @DateTime.Now.ToString("dd MMM")</span>
+                </div>
+
+                <div class="cal-grid">
+                    <div class="cal-head">Sun</div>
+                    <div class="cal-head">Mon</div>
+                    <div class="cal-head">Tue</div>
+                    <div class="cal-head">Wed</div>
+                    <div class="cal-head">Thu</div>
+                    <div class="cal-head">Fri</div>
+                    <div class="cal-head">Sat</div>
+                    
+                    @{
+                        var now = DateTime.Now;
+                        var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
+                        var firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
+                        var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek; 
+                    }
+
+                    @for (int i = 0; i < startDayOfWeek; i++) { <div class="cal-day border-0 bg-transparent"></div> }
+
+                    @for (int day = 1; day <= daysInMonth; day++)
+                    {
+                        var currentDate = new DateTime(now.Year, now.Month, day);
+                        var isToday = currentDate.Date == DateTime.Today;
+                        var events = Model.CalendarEvents.Where(e => e.Date.Date == currentDate.Date).ToList();
+
+                        <div class="cal-day @(isToday ? "today" : "")">
+                            <div class="fw-bold @(isToday ? "text-primary" : "text-secondary")">@day</div>
+                            @foreach (var ev in events)
+                            {
+                                <div class="cal-event" title="@ev.Title">@ev.Title</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Status & Feed -->
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-3 h-100">
+                
+                <!-- 1. Next Deadline (Critical) -->
+                <div class="compact-card p-3 border-start border-4 border-warning">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="fw-bold text-uppercase small text-muted mb-0">Next Deadline</h6>
+                         <i class="bi bi-calendar-check text-warning fs-5"></i>
+                    </div>
+                    @if (Model.NextDeadline != null)
+                    {
+                        <h3 class="fw-bold mb-0 @(Model.NextDeadline.DaysRemaining < 3 ? "text-danger" : "text-dark")">
+                            @Model.NextDeadline.DaysRemaining <span class="fs-6 fw-normal text-muted">days left</span>
+                        </h3>
+                        <p class="mb-0 fw-medium text-dark text-truncate">@Model.NextDeadline.MilestoneName</p>
+                        <small class="text-muted">Due: @Model.NextDeadline.DueDate.ToString("MMM dd")</small>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">No upcoming deadlines.</p>
+                    }
+                </div>
+
+                <!-- 2. Recent Feedback -->
+                <div class="compact-card p-3 border-start border-4 border-info">
+                   <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="fw-bold text-uppercase small text-muted mb-0">Latest Feedback</h6>
+                         <i class="bi bi-chat-quote text-info fs-5"></i>
+                    </div>
+                    @if (Model.RecentFeedback != null)
+                    {
+                        <div class="fs-7 fst-italic text-dark mb-2">"@Model.RecentFeedback.FeedbackText"</div>
+                        <div class="d-flex align-items-center">
+                             <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width:20px; height:20px; font-size:0.6rem;">
+                                 <i class="bi bi-person"></i>
+                             </div>
+                             <small class="fw-bold text-muted" style="font-size:0.7rem;">@Model.RecentFeedback.ReviewerName</small>
+                        </div>
+                    }
+                    else
+                    {
+                         <p class="text-muted small mb-0">No new feedback.</p>
+                    }
+                </div>
+
+                <!-- 3. Upcoming List (Fill remaining space) -->
+                <div class="compact-card px-3 py-2 flex-grow-1">
+                    <div class="compact-header px-0 text-primary">
+                        Upcoming Milestones
+                    </div>
+                    @if(Model.UpcomingMilestones.Any()) {
+                        <ul class="list-unstyled small mt-2">
+                            @foreach(var m in Model.UpcomingMilestones) {
+                                <li class="mb-2 pb-2 border-bottom d-flex justify-content-between">
+                                    <span class="text-truncate me-2">@m.Name</span>
+                                    <span class="text-muted fw-bold">@(m.DueDate.HasValue ? m.DueDate.Value.ToString("dd MMM") : "-")</span>
+                                </li>
+                            }
+                        </ul>
+                    } else {
+                        <p class="text-muted small mt-2">No upcoming milestones.</p>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

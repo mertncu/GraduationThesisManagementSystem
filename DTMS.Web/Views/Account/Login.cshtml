@@ -1,0 +1,52 @@
+@model DTMS.Web.Controllers.AccountController.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_AuthLayout";
+}
+
+<div class="auth-content">
+    <div class="text-center mb-4">
+        <h2 class="auth-header">e-Thesis: Graduation Thesis Management System</h2>
+        <a href="#" class="text-decoration-none" style="color: #6c757d;">Learn More</a>
+    </div>
+
+    <div class="auth-info-box">
+        <strong>Info:</strong> First time users can log in using Işık e-mail address as username and citizenship number as password.
+    </div>
+
+    <form asp-action="Login" method="post">
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p class="mb-0">@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">E-mail:</label>
+            <input asp-for="Email" class="form-control" placeholder="Enter your Isik Mail" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Password" class="form-label">Password:</label>
+            <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary-custom btn-lg">Login</button>
+        </div>
+
+        <div class="text-center auth-links">
+            <a href="#">Forgot your password?</a>
+        </div>
+    </form>
+
+    <div class="footer-text">
+        2025 © FMV Işık University - Center for Educational Technologies
+    </div>
+</div>

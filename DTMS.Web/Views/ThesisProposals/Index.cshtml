@@ -1,0 +1,115 @@
+@model IEnumerable<GTMS.Application.Features.Thesis.ThesisProposals.Queries.GetThesisProposals.ThesisProposalDto>
+
+@{
+    ViewData["Title"] = "Thesis Proposals";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Thesis Proposals</h1>
+    @if (User.IsInRole("Student") && ViewBag.CanCreate == true)
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Create New Proposal
+        </a>
+    }
+</div>
+
+
+
+@if (TempData["Warning"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["Warning"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center p-5">
+        <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+        <h4>No Proposals Found</h4>
+        <p>You haven't submitted any thesis proposals yet.</p>
+        @if (User.IsInRole("Student") && ViewBag.CanCreate == true)
+        {
+            <a asp-action="Create" class="btn btn-outline-primary mt-2">Get Started</a>
+        }
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">@item.TermName</span>
+                        
+                        @if (item.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else if (item.Status == "Approved")
+                        {
+                            <span class="badge bg-success">Approved</span>
+                        }
+                        else if (item.Status == "Rejected")
+                        {
+                             <span class="badge bg-danger">Rejected</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@item.Status</span>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold text-primary">@item.Title</h5>
+                        <p class="card-text text-muted small mb-3">
+                            @(item.Abstract.Length > 100 ? item.Abstract.Substring(0, 100) + "..." : item.Abstract)
+                        </p>
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-person-circle me-2 text-secondary"></i>
+                            <div>
+                                <small class="d-block text-muted">Advisor</small>
+                                <span class="fw-medium">@item.AdvisorName</span>
+                            </div>
+                            <div class="ms-auto"> 
+                                @if (User.IsInRole("Advisor") && item.Status == "Pending")
+                                {
+                                    <a asp-action="Review" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                        Review
+                                    </a>
+                                }
+                                else if (User.IsInRole("Student") && item.Status == "Rejected")
+                                {
+                                     <span class="text-danger">See Comment</span>
+                                }
+                                else
+                                {
+                                     <span class="text-muted">-</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-student me-2 text-secondary"></i>
+                            <div>
+                                <small class="d-block text-muted">Student</small>
+                                <span class="fw-medium">@item.StudentName</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                        <hr class="mt-0 mb-3 text-muted opacity-25">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Submitted: @item.SubmittedAt.ToString("d")</small>
+                             <a href="#" class="btn btn-sm btn-outline-primary">Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

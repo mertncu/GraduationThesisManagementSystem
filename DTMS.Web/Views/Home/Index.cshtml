@@ -1,0 +1,63 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    body {
+        background-color: #263791 !important;
+    }
+    .hover-card { transition: transform 0.2s; }
+    .hover-card:hover { transform: translateY(-5px); }
+</style>
+
+<div class="text-center py-5">
+    <img src="~/images/iu_logo.png" alt="Logo" style="max-height: 120px;" class="mb-4">
+    <h1 class="display-4 fw-bold text-white mb-3">Graduation Thesis Management System</h1>
+    <p class="lead text-white-50 mb-5">Streamline your academic journey with GTMS.</p>
+
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <div class="d-flex justify-content-center gap-3">
+            <a asp-controller="Account" asp-action="Login" class="btn btn-lg btn-light text-primary fw-bold px-5">Login</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-lg btn-outline-light px-5">Register</a>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center g-4 mt-3">
+            @if(User.IsInRole("Student")) {
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-file-earmark-plus text-primary display-4 mb-3"></i>
+                            <h5 class="fw-bold text-dark">New Proposal</h5>
+                            <p class="text-muted small">Start your thesis journey by submitting a new proposal.</p>
+                            <a asp-controller="ThesisProposals" asp-action="Create" class="btn btn-outline-primary stretched-link">Create Proposal</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                     <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-list-check text-success display-4 mb-3"></i>
+                            <h5 class="fw-bold text-dark">My Proposals</h5>
+                            <p class="text-muted small">Track the status of your submitted proposals.</p>
+                            <a asp-controller="ThesisProposals" asp-action="Index" class="btn btn-outline-success stretched-link">View Proposals</a>
+                        </div>
+                    </div>
+                </div>
+            }
+             @if(User.IsInRole("Advisor")) {
+                 <div class="col-md-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-inbox text-primary display-4 mb-3"></i>
+                            <h5 class="fw-bold text-dark">Review Proposals</h5>
+                            <p class="text-muted small">Review pending thesis proposals from students.</p>
+                            <a asp-controller="ThesisProposals" asp-action="Index" class="btn btn-outline-primary stretched-link">Go to Reviews</a>
+                        </div>
+                    </div>
+                </div>
+             }
+        </div>
+    }

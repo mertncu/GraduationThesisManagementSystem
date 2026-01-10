@@ -1,0 +1,84 @@
+@model GTMS.Application.Features.Thesis.ThesisProposals.Queries.GetProposalForReview.ReviewProposalVm
+
+@{
+    ViewData["Title"] = "Review Proposal";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Review Proposal</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Proposal Details</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block uppercase font-weight-bold">Student Name</small>
+                        <span class="fs-5">@Model.StudentName</span>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <small class="text-muted d-block uppercase font-weight-bold">Submitted At</small>
+                        <span>@Model.SubmittedAt.ToString("g")</span>
+                    </div>
+                </div>
+                 <div class="row mb-3">
+                    <div class="col-md-12">
+                        <small class="text-muted d-block uppercase font-weight-bold">Academic Term</small>
+                        <span class="badge bg-info text-dark">@Model.TermName</span>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h4 class="mb-3">@Model.Title</h4>
+                    <div class="p-3 bg-light rounded text-secondary">
+                        @Model.Abstract
+                    </div>
+                </div>
+
+                <hr />
+
+                <form asp-action="Review" method="post" id="reviewForm">
+                    <input type="hidden" asp-for="ProposalId" />
+                    <input type="hidden" asp-for="IsApproved" id="isApprovedField" />
+
+                    <div class="mb-4">
+                        <label asp-for="Comment" class="form-label fw-bold">Advisor Comment / Feedback</label>
+                        <textarea asp-for="Comment" class="form-control" rows="3" placeholder="Enter your feedback or reason..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" onclick="submitDecision(false)" class="btn btn-danger btn-lg">
+                            <i class="bi bi-x-circle me-2"></i> Reject Proposal
+                        </button>
+                        <button type="button" onclick="submitDecision(true)" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle me-2"></i> Approve Proposal
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function submitDecision(approved) {
+            if (confirm(approved ? "Are you sure you want to APPROVE this proposal?" : "Are you sure you want to REJECT this proposal?")) {
+                document.getElementById('isApprovedField').value = approved.toString(); // "true" or "false"
+                document.getElementById('reviewForm').submit();
+            }
+        }
+    </script>
+}

@@ -1,0 +1,325 @@
+@model DTMS.Web.Controllers.ProjectDetailsViewModel
+
+@{
+    ViewData["Title"] = "Project Details";
+    bool isAdvisor = User.IsInRole("Advisor");
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">@Model.Project.Title</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Sidebar / Info -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light fw-bold">Project Information</div>
+            <div class="card-body">
+                <p class="mb-1 text-muted small">Student</p>
+                <p class="fw-medium">@Model.Project.StudentName</p>
+                
+                <p class="mb-1 text-muted small">Advisor</p>
+                <p class="fw-medium">@Model.Project.AdvisorName</p>
+
+                <p class="mb-1 text-muted small">Term</p>
+                <p>@Model.Project.Term</p>
+
+                <hr/>
+                <h6 class="text-muted">Abstract</h6>
+                <p class="small text-secondary">
+                    @Model.Project.Abstract
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-8">
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3" id="projectTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="milestones-tab" data-bs-toggle="tab" data-bs-target="#milestones" type="button" role="tab">Milestones</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="submissions-tab" data-bs-toggle="tab" data-bs-target="#submissions" type="button" role="tab">Submissions</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="projectTabsContent">
+            <!-- Milestones Tab -->
+            <div class="tab-pane fade show active" id="milestones" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Project Milestones</h5>
+                    @if(isAdvisor || User.IsInRole("Student"))
+                    {
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createMilestoneModal">
+                            <i class="bi bi-plus-lg"></i> Add Milestone
+                        </button>
+                    }
+                </div>
+
+                @if(!Model.Milestones.Any())
+                {
+                    <div class="alert alert-light text-center border">
+                        <p class="mb-0 text-muted">No milestones defined yet.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="timeline">
+                        @foreach(var m in Model.Milestones)
+                        {
+                            <div class="card mb-3 border-start border-4 border-primary shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="card-title fw-bold">@m.Name</h6>
+                                        <small class="text-muted">Due: @m.DueDate.ToString("MMM dd, yyyy")</small>
+                                    </div>
+                                    <p class="card-text text-secondary small mb-2">@m.Description</p>
+                                    
+                                    <!-- Submissions Section -->
+                                    <div class="bg-light p-2 rounded">
+                                        <h6 class="small fw-bold border-bottom pb-1 mb-2">Submissions</h6>
+                                        @if(m.Submissions.Any())
+                                        {
+                                            <ul class="list-unstyled mb-2">
+                                                @foreach(var sub in m.Submissions.OrderByDescending(s => s.SubmittedAt))
+                                                {
+                                                    <li class="mb-1 small">
+                                                        <a href="@sub.FilePath" target="_blank" class="text-decoration-none">
+                                                            <i class="bi bi-file-earmark-text"></i> @(sub.OriginalFileName ?? "File")
+                                                        </a>
+                                                        <span class="badge bg-secondary ms-2" style="font-size: 0.7em;">@sub.Status</span>
+                                                        <span class="text-muted ms-1" style="font-size: 0.75em;">@sub.SubmittedAt.ToString("g")</span>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <p class="small text-muted mb-2">No submissions yet.</p>
+                                        }
+
+                                        <!-- Student Upload Action -->
+                                        <!-- Show only if User is Student (Logic: !isAdvisor) and Milestone not locked -->
+                                        @if(!isAdvisor && !m.IsCompleted)
+                                        {
+                                            <button class="btn btn-sm btn-outline-primary w-100" 
+                                                    onclick="openUploadModal('@m.Id', '@m.Name')">
+                                                <i class="bi bi-upload me-1"></i> Upload File
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Submissions Tab (All Files) -->
+            <div class="tab-pane fade" id="submissions" role="tabpanel">
+                @if(!Model.Milestones.SelectMany(m => m.Submissions).Any())
+                {
+                    <div class="alert alert-light border text-center">
+                        <p class="mb-0 text-muted">No files submitted yet.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>File</th>
+                                    <th>Milestone</th>
+                                    <th>Date</th>
+                                    <th>Status / Feedback</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(var sub in Model.Milestones.SelectMany(m => m.Submissions).OrderByDescending(s => s.SubmittedAt))
+                                {
+                                    var milestoneName = Model.Milestones.First(m => m.Id == sub.MilestoneId).Name;
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-file-earmark-text fs-4 text-primary me-2"></i>
+                                                <div>
+                                                    <div class="fw-bold">@(sub.OriginalFileName ?? "Document")</div>
+                                                    <small class="text-muted">By @sub.StudentName</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark border">@milestoneName</span></td>
+                                        <td>@sub.SubmittedAt.ToString("g")</td>
+                                        <td>
+                                            @if(sub.Status == "Submitted") { <span class="badge bg-info text-dark">Submitted</span> }
+                                            else if(sub.Status == "Approved") { <span class="badge bg-success">Approved</span> }
+                                            else if(sub.Status == "NeedsRevision") { <span class="badge bg-warning text-dark">Needs Revision</span> }
+                                            else { <span class="badge bg-secondary">@sub.Status</span> }
+
+                                            @if(!string.IsNullOrEmpty(sub.Feedback))
+                                            {
+                                                <div class="mt-1 small text-muted"><i class="bi bi-chat-left-quote me-1"></i>@sub.Feedback</div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="@sub.FilePath" target="_blank" class="btn btn-outline-primary">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                                @if(isAdvisor)
+                                                {
+                                                    <button type="button" class="btn btn-outline-success" 
+                                                            onclick="openReviewModal('@sub.Id', '@Model.Project.Id')">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Submission Modal (Advisor) -->
+@if(isAdvisor)
+{
+    <div class="modal fade" id="reviewSubmissionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Review Submission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/Submissions/Review" method="post">
+                    <input type="hidden" name="ThesisId" id="reviewThesisId" />
+                    <input type="hidden" name="SubmissionId" id="reviewSubmissionId" />
+                    
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="Status" class="form-select" required>
+                                <option value="Approved">Approved</option>
+                                <option value="NeedsRevision">Needs Revision</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Feedback</label>
+                            <textarea name="Feedback" class="form-control" rows="3" placeholder="Optional comments..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openReviewModal(submissionId, thesisId) {
+            document.getElementById('reviewSubmissionId').value = submissionId;
+            document.getElementById('reviewThesisId').value = thesisId;
+            var myModal = new bootstrap.Modal(document.getElementById('reviewSubmissionModal'));
+            myModal.show();
+        }
+    </script>
+}
+
+<!-- Create Milestone Modal (Advisor & Student) -->
+@if(isAdvisor || (User.IsInRole("Student") && Model.Project.StudentName == User.Identity.Name)) 
+{
+    @* Note: A robust check would use StudentId vs User Id claim, but for UI hiding IsInRole("Student") is a good proxy coupled with backend check *@
+    <div class="modal fade" id="createMilestoneModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Milestone</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/ThesisMilestones/Create" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="ThesisId" value="@Model.Project.Id" />
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="Name" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" name="DueDate" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="Description" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Upload Submission Modal (Student) -->
+@if(!isAdvisor)
+{
+    <div class="modal fade" id="uploadSubmissionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Submission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/Submissions/Create" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="ThesisId" value="@Model.Project.Id" />
+                    <input type="hidden" name="MilestoneId" id="uploadMilestoneId" />
+                    
+                    <div class="modal-body">
+                        <p class="text-muted mb-3">Uploading for: <strong id="uploadMilestoneName"></strong></p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Select File (PDF, DOCX, ZIP)</label>
+                            <input type="file" name="File" class="form-control" required />
+                        </div>
+                         <div class="mb-3">
+                            <label class="form-label">Notes (Optional)</label>
+                            <textarea name="Notes" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openUploadModal(milestoneId, milestoneName) {
+            document.getElementById('uploadMilestoneId').value = milestoneId;
+            document.getElementById('uploadMilestoneName').innerText = milestoneName;
+            var myModal = new bootstrap.Modal(document.getElementById('uploadSubmissionModal'));
+            myModal.show();
+        }
+    </script>
+}
