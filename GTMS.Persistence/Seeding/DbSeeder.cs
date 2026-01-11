@@ -68,7 +68,7 @@ public class DbSeeder
         }
 
         // 4. Ensure Thesis Statuses Exist
-        var thesisStatuses = new[] { "Ongoing", "Completed", "Frozen", "Cancelled" };
+        var thesisStatuses = new[] { "Ongoing", "Completed", "Frozen", "Cancelled", "DefenseRequested", "DefenseScheduled", "DefenseFailed", "RevisionRequired" };
         foreach (var status in thesisStatuses)
         {
             if (!await _context.ThesisStatuses.AnyAsync(s => s.Name == status))

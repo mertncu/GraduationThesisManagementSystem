@@ -23,6 +23,23 @@ public class ThesisProjectsController : Controller
         return View(projects);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RequestDefense(Guid id)
+    {
+        try
+        {
+            var command = new GTMS.Application.Features.Defense.Requests.Commands.RequestDefense.RequestDefenseCommand { ThesisId = id };
+            await _mediator.Send(command);
+            TempData["SuccessMessage"] = "Defense request submitted successfully.";
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+        }
+        return RedirectToAction("Details", new { id });
+    }
+
     public async Task<IActionResult> Details(Guid id)
     {
         try
