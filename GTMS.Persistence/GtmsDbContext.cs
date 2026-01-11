@@ -6,6 +6,7 @@ using GTMS.Domain.Entities.Notification;
 using GTMS.Domain.Entities.Submission;
 using GTMS.Domain.Entities.System;
 using GTMS.Domain.Entities.Thesis;
+using GTMS.Domain.Entities.Defense;
 using Microsoft.EntityFrameworkCore;
 
 namespace GTMS.Persistence;
@@ -27,8 +28,10 @@ public class GtmsDbContext : DbContext, IGtmsDbContext
     public DbSet<Committee> Committees { get; set; }
     public DbSet<CommitteeMember> CommitteeMembers { get; set; }
     public DbSet<CommitteeRole> CommitteeRoles { get; set; }
+    public DbSet<DefenseEvent> DefenseEvents { get; set; }
     public DbSet<DefenseSession> DefenseSessions { get; set; }
-    public DbSet<DefenseStatus> DefenseStatuses { get; set; }
+    public DbSet<DefenseJury> DefenseJuries { get; set; }
+
     public DbSet<Evaluation> Evaluations { get; set; }
     public DbSet<EvaluationRubric> EvaluationRubrics { get; set; }
     public DbSet<FinalGrade> FinalGrades { get; set; }

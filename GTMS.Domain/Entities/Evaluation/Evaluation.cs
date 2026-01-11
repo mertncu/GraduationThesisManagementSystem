@@ -1,5 +1,5 @@
 using GTMS.Domain.Common;
-
+using GTMS.Domain.Entities.Defense;
 namespace GTMS.Domain.Entities.Evaluation;
 
 public class Evaluation : BaseEntity

@@ -4,6 +4,7 @@ using GTMS.Domain.Entities.Evaluation;
 using GTMS.Domain.Entities.Identity;
 using GTMS.Domain.Entities.Submission;
 using GTMS.Domain.Entities.Thesis;
+using GTMS.Domain.Entities.Defense;
 using GTMS.Domain.Entities.Notification;
 using GTMS.Domain.Entities.System;
 
@@ -36,7 +37,9 @@ public interface IGtmsDbContext
     
     DbSet<Committee> Committees { get; }
     DbSet<CommitteeMember> CommitteeMembers { get; }
+    DbSet<DefenseEvent> DefenseEvents { get; }
     DbSet<DefenseSession> DefenseSessions { get; }
+    DbSet<DefenseJury> DefenseJuries { get; }
     DbSet<Evaluation> Evaluations { get; }
     DbSet<FinalGrade> FinalGrades { get; }
     

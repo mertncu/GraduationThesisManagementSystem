@@ -1,0 +1,69 @@
+@model GTMS.Application.Features.Defense.Events.Commands.CreateDefenseEvent.CreateDefenseEventCommand
+
+@{
+    ViewData["Title"] = "Create Defense Day";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Create Defense Day</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">New Defense Schema</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateEvent" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="TermId" class="form-label">Academic Term</label>
+                    <select asp-for="TermId" class="form-control" asp-items="ViewBag.Terms">
+                        <option value="">-- Select Term --</option>
+                    </select>
+                    <span asp-validation-for="TermId" class="text-danger"></span>
+                    <small class="text-muted">Only one Defense Day per term is allowed.</small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Date" class="form-label">Defense Date</label>
+                        <input asp-for="Date" type="date" class="form-control" />
+                        <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                         <label asp-for="Location" class="form-label">Location</label>
+                         <input asp-for="Location" class="form-control" placeholder="e.g. Building A, Room 203 or Zoom" />
+                         <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="StartTime" class="form-label">Start Time</label>
+                        <input asp-for="StartTime" type="time" class="form-control" />
+                        <span asp-validation-for="StartTime" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="EndTime" class="form-label">End Time</label>
+                        <input asp-for="EndTime" type="time" class="form-control" />
+                        <span asp-validation-for="EndTime" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="SlotDurationMinutes" class="form-label">Slot Duration (Min)</label>
+                        <input asp-for="SlotDurationMinutes" type="number" class="form-control" value="60" min="30" step="15" />
+                        <span asp-validation-for="SlotDurationMinutes" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-1"></i> Create Defense Day
+                </button>
+                <a asp-action="Events" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

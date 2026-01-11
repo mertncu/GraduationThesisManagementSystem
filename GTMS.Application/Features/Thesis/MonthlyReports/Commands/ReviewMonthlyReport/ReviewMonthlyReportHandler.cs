@@ -1,6 +1,6 @@
 using GTMS.Application.Common.Exceptions;
 using GTMS.Application.Common.Interfaces;
-using GTMS.Domain.Entities.Thesis; // For MonthlyReport
+using GTMS.Domain.Entities.Thesis;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
