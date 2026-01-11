@@ -29,7 +29,8 @@ public class DefenseController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Events()
     {
-        return View(new List<object>()); 
+        var events = await _mediator.Send(new GTMS.Application.Features.Defense.Events.Queries.GetDefenseEvents.GetDefenseEventsQuery());
+        return View(events); 
     }
 
     [Authorize(Roles = "Admin")]

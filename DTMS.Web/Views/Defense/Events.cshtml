@@ -1,4 +1,4 @@
-@model IEnumerable<object>
+@model IEnumerable<GTMS.Application.Features.Defense.Events.Queries.GetDefenseEvents.DefenseEventDto>
 
 @{
     ViewData["Title"] = "Defense Days";
@@ -33,7 +33,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Loop through events -->
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.TermName</td>
+                                <td>@item.Date.ToShortDateString()</td>
+                                <td>@item.StartTime - @item.EndTime</td>
+                                <td>@item.Location</td>
+                                <td>
+                                    <span class="badge bg-info text-dark">@item.SlotDurationMinutes min</span>
+                                    <span class="badge bg-secondary">@item.TotalSessions Sessions</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
                     </tbody>
                 </table>
             }
