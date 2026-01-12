@@ -9,18 +9,12 @@
     <h1 class="h2">@Model.Project.Title</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group me-2">
-            @if (User.IsInRole("Student") && Model.Project.Status == "Ongoing")
-            {
-                <form asp-action="RequestDefense" asp-route-id="@Model.Project.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to request defense? This requires all milestones to be approved.');">
-                    <button type="submit" class="btn btn-sm btn-outline-success">
-                        <i class="bi bi-mortarboard me-1"></i> Request Defense
-                    </button>
-                </form>
-            }
+
             <a asp-controller="MonthlyReports" asp-action="Index" asp-route-thesisId="@Model.Project.Id" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-file-earmark-text me-1"></i> Monthly Reports
             </a>
             <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+
         </div>
         <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i> Back to List
@@ -61,6 +55,9 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="submissions-tab" data-bs-toggle="tab" data-bs-target="#submissions" type="button" role="tab">Submissions</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="defense-tab" data-bs-toggle="tab" data-bs-target="#defense" type="button" role="tab">Defense</button>
             </li>
         </ul>
 
@@ -205,9 +202,188 @@
                     </div>
                 }
             </div>
-        </div>
-    </div>
-</div>
+
+            <!-- Defense Tab -->
+            <div class="tab-pane fade" id="defense" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-8">
+                         <!-- Status Card -->
+                         <div class="card mb-4 shadow-sm border-left-{@(Model.Project.Status == "DefenseScheduled" ? "success" : Model.Project.Status == "DefenseRequested" ? "warning" : "primary")}">
+                             <div class="card-body">
+                                 <h5 class="card-title text-gray-800">Defense Status</h5>
+                                 <div class="d-flex align-items-center mt-3">
+                                     <div class="me-3">
+                                         @if (Model.Project.Status == "Ongoing") { <i class="bi bi-circle fs-1 text-secondary"></i> }
+                                         else if (Model.Project.Status == "DefenseRequested") { <i class="bi bi-clock-history fs-1 text-warning"></i> }
+                                         else if (Model.Project.Status == "DefenseScheduled") { <i class="bi bi-calendar-check fs-1 text-success"></i> }
+                                         else { <i class="bi bi-info-circle fs-1 text-muted"></i> }
+                                     </div>
+                                     <div>
+                                         <h4 class="mb-0">@Model.Project.Status</h4>
+                                         <p class="text-muted mb-0">Current status of the thesis defense process.</p>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+
+                        <!-- Prerequisites (Milestones) -->
+                         <div class="card mb-4 shadow-sm">
+                             <div class="card-header bg-white py-3">
+                                 <h6 class="m-0 font-weight-bold text-primary">Prerequisites Checklist</h6>
+                             </div>
+                             <div class="card-body">
+                                 <ul class="list-group list-group-flush">
+                                     @{
+                                         bool allApproved = true;
+                                     }
+                                     @foreach(var m in Model.Milestones)
+                                     {
+                                         var isApproved = m.Submissions.Any(s => s.Status == "Approved");
+                                         if (!isApproved) { allApproved = false; }
+                                         
+                                         <li class="list-group-item d-flex justify-content-between align-items-center">
+                                             <div>
+                                                 <span class="@(isApproved ? "text-success fw-bold" : "text-secondary")">
+                                                     <i class="bi @(isApproved ? "bi-check-circle-fill" : "bi-circle") me-2"></i> @m.Name
+                                                 </span>
+                                                 @if(!isApproved) { <small class="d-block text-muted ms-4">Waiting for approval</small> }
+                                             </div>
+                                             @if(isApproved)
+                                             {
+                                                 <span class="badge bg-success rounded-pill">Completed</span>
+                                             }
+                                             else
+                                             {
+                                                 <span class="badge bg-secondary rounded-pill">Pending</span>
+                                             }
+                                         </li>
+                                     }
+                                 </ul>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <!-- Action Card -->
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                @if (User.IsInRole("Student") && Model.Project.Status == "Ongoing")
+                                {
+                                    <div class="mb-3">
+                                        <i class="bi bi-mortarboard fs-1 text-primary"></i>
+                                    </div>
+                                    <p class="card-text small text-muted">Once all milestones are approved, you can request to defend your thesis.</p>
+                                    
+                                    @if(allApproved && Model.Milestones.Any())
+                                    {
+                                        <form asp-action="RequestDefense" asp-route-id="@Model.Project.Id" method="post" onsubmit="return confirm('Are you sure you want to request defense?');">
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                Request Defense
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-secondary w-100" disabled>
+                                            Request Defense
+                                        </button>
+                                        <small class="text-danger d-block mt-2">Complete all milestones first.</small>
+                                    }
+                                }
+                                else if (isAdvisor && Model.Project.Status == "DefenseRequested")
+                                {
+                                    <div class="mb-3">
+                                        <i class="bi bi-exclamation-circle fs-1 text-warning"></i>
+                                    </div>
+                                    <p class="card-text fw-bold">Student requested defense.</p>
+                                    <p class="card-text small text-muted">Review the work. If satisfied, approve to auto-schedule the defense in the current term's Defense Day.</p>
+                                    
+                                    <form asp-action="ApproveDefenseRequest" asp-route-id="@Model.Project.Id" method="post" onsubmit="return confirm('Approve request and schedule defense?');">
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="bi bi-check-lg me-1"></i> Approve & Schedule
+                                        </button>
+                                    </form>
+                                }
+                                else if (Model.Project.Status == "DefenseScheduled")
+                                {
+                                     <div class="mb-3">
+                                        <i class="bi bi-calendar-event fs-1 text-success"></i>
+                                    </div>
+                                    <p class="fw-bold text-success">Defense Scheduled</p>
+                                    <p class="small text-muted">Session details available.</p>
+                                    
+                                    @if(isAdvisor)
+                                    {
+                                        <div class="d-grid gap-2 mt-2">
+                                            <a asp-controller="Defense" asp-action="JuryManagement" asp-route-thesisId="@Model.Project.Id" class="btn btn-outline-primary">
+                                                <i class="bi bi-people-fill me-1"></i> Form Jury
+                                            </a>
+                                            <a asp-controller="Defense" asp-action="EnterScore" asp-route-thesisId="@Model.Project.Id" class="btn btn-success">
+                                                <i class="bi bi-card-checklist me-1"></i> Enter Final Result
+                                            </a>
+                                        </div>
+                                    }
+                                }
+                                else if (Model.Project.Status == "Completed" || Model.Project.Status == "DefenseFailed")
+                                {
+                                     <div class="mb-3">
+                                        @if(Model.Project.Status == "Completed")
+                                        {
+                                            <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+                                            <p class="fw-bold text-success mt-2">Thesis Completed</p>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-x-circle-fill fs-1 text-danger"></i>
+                                             <p class="fw-bold text-danger mt-2">Defense Failed</p>
+                                        }
+                                    </div>
+                                    
+                                    @if(Model.Project.DefenseResult != null)
+                                    {
+                                        <div class="card bg-light border-0 small text-start">
+                                            <div class="card-body">
+                                                <h6 class="card-title fw-bold border-bottom pb-2">Final Grading</h6>
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>Quality:</span>
+                                                    <span class="fw-bold">@Model.Project.DefenseResult.QualityScore</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>Presentation:</span>
+                                                    <span class="fw-bold">@Model.Project.DefenseResult.PresentationScore</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>Q&A:</span>
+                                                    <span class="fw-bold">@Model.Project.DefenseResult.QAScore</span>
+                                                </div>
+                                                 <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                                                    <span class="fw-bold">Total:</span>
+                                                    <span class="fw-bold fs-6 @(Model.Project.DefenseResult.TotalScore >= 70 ? "text-success" : "text-danger")">
+                                                        @Model.Project.DefenseResult.TotalScore
+                                                    </span>
+                                                </div>
+                                                @if(!string.IsNullOrEmpty(Model.Project.DefenseResult.Comment))
+                                                {
+                                                    <div class="mt-2 pt-2 border-top text-muted fst-italic">
+                                                        "@Model.Project.DefenseResult.Comment"
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted">No actions available at this stage.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 <!-- Review Submission Modal (Advisor) -->
 @if(isAdvisor)
