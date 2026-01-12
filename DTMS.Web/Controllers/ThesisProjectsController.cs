@@ -40,6 +40,24 @@ public class ThesisProjectsController : Controller
         return RedirectToAction("Details", new { id });
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Advisor")]
+    public async Task<IActionResult> ApproveDefenseRequest(Guid id)
+    {
+        try
+        {
+            var command = new GTMS.Application.Features.Defense.Requests.Commands.ApproveDefenseRequest.ApproveDefenseRequestCommand { ThesisId = id };
+            await _mediator.Send(command);
+            TempData["SuccessMessage"] = "Request approved. Defense Session scheduled automatically.";
+        }
+        catch (Exception ex)
+        {
+             TempData["ErrorMessage"] = ex.Message;
+        }
+        return RedirectToAction("Details", new { id });
+    }
+
     public async Task<IActionResult> Details(Guid id)
     {
         try
