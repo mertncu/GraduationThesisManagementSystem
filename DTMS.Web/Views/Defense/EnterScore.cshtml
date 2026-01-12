@@ -1,0 +1,61 @@
+@model GTMS.Application.Features.Defense.Grading.Commands.EnterDefenseScore.EnterDefenseScoreCommand
+
+@{
+    ViewData["Title"] = "Enter Defense Score";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-calculator me-2"></i>Final Grading</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Project:</strong> @ViewBag.ThesisTitle <br/>
+                    <strong>Student:</strong> @ViewBag.StudentName
+                </div>
+
+                <form asp-action="EnterScore" method="post" onsubmit="return confirm('Are you sure? This action is final and will determine the student\'s pass/fail status.');">
+                    <input type="hidden" asp-for="DefenseSessionId" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="QualityScore" class="form-label">Thesis Quality (0-100)</label>
+                            <input asp-for="QualityScore" class="form-control" type="number" min="0" max="100" />
+                            <span asp-validation-for="QualityScore" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="PresentationScore" class="form-label">Presentation (0-100)</label>
+                            <input asp-for="PresentationScore" class="form-control" type="number" min="0" max="100" />
+                            <span asp-validation-for="PresentationScore" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="QAScore" class="form-label">Q&A (0-100)</label>
+                            <input asp-for="QAScore" class="form-control" type="number" min="0" max="100" />
+                            <span asp-validation-for="QAScore" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Comment" class="form-label">Final Comments / Feedback</label>
+                        <textarea asp-for="Comment" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                         <button type="submit" class="btn btn-primary btn-lg">Finalize & Submit Result</button>
+                         <a href="javascript:history.back()" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-muted small">
+                Note: Total score will be calculated automatically. Pass threshold is 70.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

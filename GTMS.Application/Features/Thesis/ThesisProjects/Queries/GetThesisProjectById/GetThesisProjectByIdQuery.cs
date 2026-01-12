@@ -28,6 +28,8 @@ public class GetThesisProjectByIdQueryHandler : IRequestHandler<GetThesisProject
             .Include(t => t.MainAdvisor)
             .Include(t => t.ThesisStatus)
             .Include(t => t.Term)
+            .Include(t => t.DefenseSessions)
+                .ThenInclude(ds => ds.DefenseEvent)
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
             
@@ -68,7 +70,17 @@ public class GetThesisProjectByIdQueryHandler : IRequestHandler<GetThesisProject
             AdvisorName = $"{project.MainAdvisor.FirstName} {project.MainAdvisor.LastName}",
             Status = project.ThesisStatus.Name,
             Term = project.Term.Name,
-            ApprovedAt = project.ApprovedAt
+            ApprovedAt = project.ApprovedAt,
+            DefenseResult = project.DefenseSessions.OrderByDescending(d => d.CreatedAt).Select(ds => new DefenseResultDto
+            {
+                QualityScore = ds.QualityScore,
+                PresentationScore = ds.PresentationScore,
+                QAScore = ds.QAScore,
+                TotalScore = ds.TotalScore,
+                Result = ds.Result ?? "Pending",
+                Comment = ds.Comment,
+                Date = ds.DefenseEvent != null ? ds.DefenseEvent.Date.Date.Add(ds.StartTime) : DateTime.MinValue 
+            }).FirstOrDefault()
         };
     }
 }
