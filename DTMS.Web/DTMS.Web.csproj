@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <ItemGroup>
       <ProjectReference Include="..\GTMS.Application\GTMS.Application.csproj" />
@@ -17,6 +17,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+      <UserSecretsId>28a6fab1-a183-4b5a-bd5d-43be6187f9cf</UserSecretsId>
+  </PropertyGroup>
 
 </Project>

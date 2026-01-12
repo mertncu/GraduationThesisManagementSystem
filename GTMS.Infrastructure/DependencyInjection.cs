@@ -7,8 +7,10 @@ namespace GTMS.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
+        services.Configure<Identity.JwtSettings>(configuration.GetSection(Identity.JwtSettings.SectionName));
+
         services.AddTransient<ITokenService, TokenService>();
         services.AddTransient<IPasswordHasher, PasswordHasher>();
         services.AddTransient<IFileStorageService, FileStorageService>();
