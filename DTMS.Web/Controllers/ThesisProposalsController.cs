@@ -21,6 +21,12 @@ public class ThesisProposalsController : Controller
         _mediator = mediator;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Details(Guid id)
+    {
+        return View(await _mediator.Send(new GTMS.Application.Features.Thesis.ThesisProposals.Queries.GetProposalDetails.GetProposalDetailsQuery { ProposalId = id }));
+    }
+
     public async Task<IActionResult> Index()
     {
         return View(await _mediator.Send(new GetThesisProposalsQuery()));
