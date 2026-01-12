@@ -36,4 +36,5 @@ public class ThesisProject : BaseEntity
     public byte[] RowVersion { get; set; } = null!;
 
     public ICollection<ThesisMilestone> ThesisMilestones { get; set; } = new List<ThesisMilestone>();
+    public ICollection<GTMS.Domain.Entities.Defense.DefenseSession> DefenseSessions { get; set; } = new List<GTMS.Domain.Entities.Defense.DefenseSession>();
 }

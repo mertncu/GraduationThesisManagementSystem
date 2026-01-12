@@ -50,5 +50,10 @@ public class ThesisProjectConfiguration : IEntityTypeConfiguration<ThesisProject
             .WithMany()
             .HasForeignKey(t => t.TermId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(t => t.DefenseSessions)
+            .WithOne(d => d.ThesisProject)
+            .HasForeignKey(d => d.ThesisId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

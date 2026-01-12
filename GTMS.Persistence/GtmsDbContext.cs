@@ -73,5 +73,12 @@ public class GtmsDbContext : DbContext, IGtmsDbContext
         
         // Scan for external configurations regardless of where they are (if we add them later)
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(GtmsDbContext).Assembly);
+
+        // Explicitly force the relationship to avoid ThesisProjectId shadow property issue
+        modelBuilder.Entity<GTMS.Domain.Entities.Defense.DefenseSession>()
+            .HasOne(d => d.ThesisProject)
+            .WithMany(t => t.DefenseSessions)
+            .HasForeignKey(d => d.ThesisId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

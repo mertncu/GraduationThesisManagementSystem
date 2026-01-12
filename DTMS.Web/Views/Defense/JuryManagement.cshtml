@@ -1,0 +1,172 @@
+@model GTMS.Application.Features.Defense.Jury.Queries.GetDefenseJury.JuryManagementVm
+
+@{
+    ViewData["Title"] = "Jury Management";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0 text-gray-800">Jury Formation</h1>
+        <p class="text-muted">Manage the defense jury for <strong>@Model.ThesisTitle</strong> (@Model.StudentName)</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-controller="ThesisProjects" asp-action="Details" asp-route-id="@Model.ThesisId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Project
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <!-- Existing Jury -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Current Jury Members</h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Members.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Institution</th>
+                                    <th>Role</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var member in Model.Members)
+                                {
+                                    <tr>
+                                        <td>@member.Name</td>
+                                        <td>@member.Institution</td>
+                                        <td>
+                                            @if (member.IsChair)
+                                            {
+                                                <span class="badge bg-warning text-dark"><i class="bi bi-star-fill me-1"></i>Chair</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Member</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <form asp-action="RemoveJuryMember" asp-route-id="@member.Id" method="post" onsubmit="return confirm('Remove this member?');" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-people fs-1 d-block mb-2"></i>
+                        <p>No jury members assigned yet.</p>
+                    </div>
+                }
+                
+                <div class="mt-3 text-muted small">
+                    <i class="bi bi-info-circle me-1"></i> Minimum 3, Maximum 5 members required. One must be assigned as Chair.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Member -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h6 class="m-0 font-weight-bold text-success">Add Jury Member</h6>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs mb-3" id="juryTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="internal-tab" data-bs-toggle="tab" data-bs-target="#internal" type="button" role="tab">Internal Faculty</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="external-tab" data-bs-toggle="tab" data-bs-target="#external" type="button" role="tab">External Member</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="juryTabContent">
+                    <!-- Internal Tab -->
+                    <div class="tab-pane fade show active" id="internal" role="tabpanel">
+                        <form asp-action="AddJuryMember" method="post">
+                            <input type="hidden" name="DefenseSessionId" value="@Model.DefenseSessionId" />
+                            
+                             <div class="mb-3">
+                                <label class="form-label">Select Advisor</label>
+                                <select name="AdvisorId" class="form-select" required>
+                                    <option value="">-- Choose Faculty Member --</option>
+                                    @foreach(var advisor in Model.AvailableAdvisors)
+                                    {
+                                        <option value="@advisor.Id">@advisor.Name (@advisor.Department)</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="isChairInternal" name="IsChair" value="true">
+                                <label class="form-check-label" for="isChairInternal">Assign as Chair</label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success w-100">Add Internal Member</button>
+                        </form>
+                    </div>
+                    
+                    <!-- External Tab -->
+                    <div class="tab-pane fade" id="external" role="tabpanel">
+                         <form asp-action="AddJuryMember" method="post">
+                            <input type="hidden" name="DefenseSessionId" value="@Model.DefenseSessionId" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" name="ExternalName" class="form-control" placeholder="Dr. John Doe">
+                            </div>
+
+                             <div class="mb-3">
+                                <label class="form-label">Institution</label>
+                                <input type="text" name="ExternalInstitution" class="form-control" placeholder="Other University">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="ExternalEmail" class="form-control" placeholder="john.doe@example.com">
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="isChairExternal" name="IsChair" value="true">
+                                <label class="form-check-label" for="isChairExternal">Assign as Chair</label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success w-100">Add External Member</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
