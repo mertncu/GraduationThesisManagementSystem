@@ -1,0 +1,146 @@
+@model GTMS.Application.Features.Dashboard.Advisor.Queries.GetAdvisorDashboard.AdvisorDashboardVm
+
+@{
+    ViewData["Title"] = "Advisor Dashboard";
+}
+
+<div class="mb-4">
+    <h1 class="display-6 fw-bold text-gray-800">Welcome Back, Advisor</h1>
+    <p class="text-muted">Here is an overview of your academic supervision.</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-primary">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">Active Theses</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.ActiveThesesCount</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-mortarboard fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">Pending Proposals</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.PendingProposalsCount</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-inbox fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                         <div class="text-xs fw-bold text-info text-uppercase mb-1">Upcoming Defenses</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.UpcomingDefensesCount</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-calendar-event fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-success">
+            <div class="card-body">
+                 <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-success text-uppercase mb-1">Completed Theses</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.CompletedThesesCount</div>
+                    </div>
+                    <div class="col-auto">
+                         <i class="bi bi-check-circle fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Pending Proposals List -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                 <h6 class="m-0 fw-bold text-primary">Pending Proposal Reviews</h6>
+                 <a asp-controller="ThesisProposals" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                 @if (Model.PendingProposals.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var p in Model.PendingProposals)
+                        {
+                            <a asp-controller="ThesisProposals" asp-action="Review" asp-route-id="@p.Id" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-4 py-3">
+                                <div>
+                                    <div class="fw-bold text-dark">@p.StudentName</div>
+                                    <div class="small text-muted text-truncate" style="max-width: 250px;">@p.Title</div>
+                                </div>
+                                <span class="badge bg-light text-dark rounded-pill">@p.SubmittedAt.ToShortDateString()</span>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-check2-all fs-1 d-block mb-2"></i>
+                        <p>No pending proposals to review.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="col-lg-6 mb-4">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 fw-bold text-info">Upcoming Schedule</h6>
+            </div>
+             <div class="card-body p-0">
+                 @if (Model.UpcomingEvents.Any())
+                {
+                     <div class="list-group list-group-flush">
+                        @foreach (var e in Model.UpcomingEvents)
+                        {
+                            <div class="list-group-item px-4 py-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 fw-bold text-dark">@e.Title</h6>
+                                    <small class="text-primary fw-bold">@e.Date.ToString("MMM dd, HH:mm")</small>
+                                </div>
+                                <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>Campus</small>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                     <div class="text-center py-5 text-muted">
+                        <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                        <p>No upcoming events scheduled.</p>
+                    </div>
+                }
+             </div>
+        </div>
+    </div>
+</div>

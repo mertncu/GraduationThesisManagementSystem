@@ -30,6 +30,21 @@ public class HomeController : Controller
                 return View("StudentDashboard", model);
             }
         }
+        else if (User.IsInRole("Advisor"))
+        {
+            // Assuming we have ICurrentUserService to get ID, or we extract from User claims here
+            // GetStudentDashboardQuery handled it internally via service, let's do same for Advisor
+            // Actually GetStudentDashboardQuery didn't take args, it used current user service inside handler.
+            // My new GetAdvisorDashboardQuery takes ID. I should fix that to match pattern OR pass ID here.
+            // Let's pass ID here.
+            
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (Guid.TryParse(userIdClaim, out Guid userId))
+            {
+                 var model = await _mediator.Send(new GTMS.Application.Features.Dashboard.Advisor.Queries.GetAdvisorDashboard.GetAdvisorDashboardQuery { AdvisorUserId = userId });
+                 return View("AdvisorDashboard", model);
+            }
+        }
 
         return View();
     }

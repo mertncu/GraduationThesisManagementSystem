@@ -29,12 +29,22 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill me-1"></i>Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ThesisProposals" asp-action="Index"><i class="bi bi-file-text me-1"></i>My Proposals</a>
-                        </li>
-                        @if (User.Identity.IsAuthenticated && (User.IsInRole("Advisor") || User.IsInRole("Student")))
+                        
+                        @if (User.IsInRole("Advisor"))
                         {
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ThesisProposals" asp-action="Index"><i class="bi bi-file-earmark-check me-1"></i>Review Proposals</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="ThesisProjects" asp-action="Index"><i class="bi bi-mortarboard me-1"></i>Supervised Theses</a>
+                            </li>
+                        }
+                        else if (User.IsInRole("Student"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ThesisProposals" asp-action="Index"><i class="bi bi-file-text me-1"></i>My Proposals</a>
+                            </li>
+                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="ThesisProjects" asp-action="Index"><i class="bi bi-kanban me-1"></i>My Projects</a>
                             </li>
                         }
