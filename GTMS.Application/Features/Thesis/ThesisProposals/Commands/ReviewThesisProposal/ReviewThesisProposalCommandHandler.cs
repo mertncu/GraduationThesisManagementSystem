@@ -10,11 +10,13 @@ public class ReviewThesisProposalCommandHandler : IRequestHandler<ReviewThesisPr
 {
     private readonly IGtmsDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IEmailService _emailService;
 
-    public ReviewThesisProposalCommandHandler(IGtmsDbContext context, ICurrentUserService currentUserService)
+    public ReviewThesisProposalCommandHandler(IGtmsDbContext context, ICurrentUserService currentUserService, IEmailService emailService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _emailService = emailService;
     }
 
     public async Task Handle(ReviewThesisProposalCommand request, CancellationToken cancellationToken)
@@ -74,5 +76,25 @@ public class ReviewThesisProposalCommandHandler : IRequestHandler<ReviewThesisPr
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Send Email Notification
+        var studentUser = proposal.Student ?? await _context.Users.FindAsync(proposal.StudentId);
+        if (studentUser != null && !string.IsNullOrEmpty(studentUser.Email))
+        {
+            var subject = $"Thesis Proposal Update: {proposal.ProposedTitle}";
+            var actionText = request.IsApproved ? "APPROVED" : "REJECTED";
+            var color = request.IsApproved ? "green" : "red";
+            var body = $@"
+                <div style='font-family: Arial, sans-serif;'>
+                    <h2>Thesis Proposal Update</h2>
+                    <p>Dear {studentUser.FirstName},</p>
+                    <p>Your thesis proposal <strong>'{proposal.ProposedTitle}'</strong> has been <span style='color: {color}; font-weight: bold;'>{actionText}</span>.</p>
+                    <p><strong>Advisor Comment:</strong> {request.Comment ?? "No comment provided."}</p>
+                    <br>
+                    <p>Best regards,<br>GTMS System</p>
+                </div>";
+
+            await _emailService.SendEmailAsync(studentUser.Email, subject, body, cancellationToken);
+        }
     }
 }

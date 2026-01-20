@@ -10,11 +10,13 @@ public class CreateThesisMilestoneHandler : IRequestHandler<CreateThesisMileston
 {
     private readonly IGtmsDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IEmailService _emailService;
 
-    public CreateThesisMilestoneHandler(IGtmsDbContext context, ICurrentUserService currentUserService)
+    public CreateThesisMilestoneHandler(IGtmsDbContext context, ICurrentUserService currentUserService, IEmailService emailService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _emailService = emailService;
     }
 
     public async Task<Guid> Handle(CreateThesisMilestoneCommand request, CancellationToken cancellationToken)
@@ -61,6 +63,30 @@ public class CreateThesisMilestoneHandler : IRequestHandler<CreateThesisMileston
 
         _context.ThesisMilestones.Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Send Email if created by Advisor
+        if (thesis.MainAdvisorId == currentUserId)
+        {
+            var studentUser = await _context.Users.FindAsync(thesis.StudentId);
+            if (studentUser != null && !string.IsNullOrEmpty(studentUser.Email))
+            {
+                var subject = $"New Milestone Assigned: {request.Name}";
+                var body = $@"
+                    <div style='font-family: Arial, sans-serif;'>
+                        <h2>New Milestone Assigned</h2>
+                        <p>Dear {studentUser.FirstName},</p>
+                        <p>A new milestone <strong>'{request.Name}'</strong> has been assigned to your thesis project.</p>
+                        <p><strong>Description:</strong> {request.Description}</p>
+                        <p><strong>Due Date:</strong> {request.DueDate.ToString("d")}</p>
+                        <br>
+                        <p>Please check the system for more details.</p>
+                        <br>
+                        <p>Best regards,<br>GTMS System</p>
+                    </div>";
+
+                await _emailService.SendEmailAsync(studentUser.Email, subject, body, cancellationToken);
+            }
+        }
 
         return entity.Id;
     }

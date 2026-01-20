@@ -10,11 +10,13 @@ public class ReviewSubmissionHandler : IRequestHandler<ReviewSubmissionCommand, 
 {
     private readonly IGtmsDbContext _context;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IEmailService _emailService;
 
-    public ReviewSubmissionHandler(IGtmsDbContext context, ICurrentUserService currentUserService)
+    public ReviewSubmissionHandler(IGtmsDbContext context, ICurrentUserService currentUserService, IEmailService emailService)
     {
         _context = context;
         _currentUserService = currentUserService;
+        _emailService = emailService;
     }
 
     public async Task<Unit> Handle(ReviewSubmissionCommand request, CancellationToken cancellationToken)
@@ -57,6 +59,28 @@ public class ReviewSubmissionHandler : IRequestHandler<ReviewSubmissionCommand, 
         submission.ReviewedByUserId = _currentUserService.UserId;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Send Email Notification
+        var studentUser = await _context.Users.FindAsync(thesis.StudentId);
+        if (studentUser != null && !string.IsNullOrEmpty(studentUser.Email))
+        {
+            var subject = $"Submission Reviewed: {submission.SubmissionStatus.Name}";
+            var color = request.Status == "Approved" ? "green" : "orange"; // Assuming Revision is the other main status
+            var body = $@"
+                <div style='font-family: Arial, sans-serif;'>
+                    <h2>Submission Reviewed</h2>
+                    <p>Dear {studentUser.FirstName},</p>
+                    <p>Your submission has been reviewed by your advisor.</p>
+                    <p><strong>Result:</strong> <span style='color: {color}; font-weight: bold;'>{request.Status}</span></p>
+                    <p><strong>Feedback:</strong> {request.Feedback ?? "No feedback provided."}</p>
+                    <br>
+                    <p>Please log in to GTMS to view more details.</p>
+                    <br>
+                    <p>Best regards,<br>GTMS System</p>
+                </div>";
+
+            await _emailService.SendEmailAsync(studentUser.Email, subject, body, cancellationToken);
+        }
 
         return Unit.Value;
     }

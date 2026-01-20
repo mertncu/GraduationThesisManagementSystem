@@ -29,10 +29,12 @@ public class EnterDefenseScoreCommandValidator : AbstractValidator<EnterDefenseS
 public class EnterDefenseScoreCommandHandler : IRequestHandler<EnterDefenseScoreCommand, bool>
 {
     private readonly IGtmsDbContext _context;
+    private readonly IEmailService _emailService;
 
-    public EnterDefenseScoreCommandHandler(IGtmsDbContext context)
+    public EnterDefenseScoreCommandHandler(IGtmsDbContext context, IEmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
 
     public async Task<bool> Handle(EnterDefenseScoreCommand request, CancellationToken cancellationToken)
@@ -67,6 +69,34 @@ public class EnterDefenseScoreCommandHandler : IRequestHandler<EnterDefenseScore
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Send Email Notification
+        var studentId = session.ThesisProject.StudentId;
+        var studentUser = await _context.Users.FindAsync(new object[] { studentId }, cancellationToken);
+        
+        if (studentUser != null && !string.IsNullOrEmpty(studentUser.Email))
+        {
+            var subject = $"Defense Result: {result}";
+            var color = result == "Successful" ? "green" : "red";
+            var body = $@"
+                <div style='font-family: Arial, sans-serif;'>
+                    <h2>Thesis Defense Result</h2>
+                    <p>Dear {studentUser.FirstName},</p>
+                    <p>Your thesis defense has been graded.</p>
+                    <p><strong>Result:</strong> <span style='color: {color}; font-weight: bold;'>{result}</span></p>
+                    <p><strong>Total Score:</strong> {session.TotalScore}</p>
+                    <p><strong>Quality Score:</strong> {request.QualityScore}</p>
+                    <p><strong>Presentation Score:</strong> {request.PresentationScore}</p>
+                    <p><strong>Q&A Score:</strong> {request.QAScore}</p>
+                    <br>
+                    <p><strong>Jury Comment:</strong> {request.Comment ?? "No comment."}</p>
+                    <br>
+                    <p>Best regards,<br>GTMS System</p>
+                </div>";
+
+            await _emailService.SendEmailAsync(studentUser.Email, subject, body, cancellationToken);
+        }
+
         return true;
     }
 }
