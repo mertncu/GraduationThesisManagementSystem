@@ -45,6 +45,7 @@ public interface IGtmsDbContext
     
     DbSet<Notification> Notifications { get; }
     DbSet<ActivityLog> ActivityLogs { get; }
+    DbSet<SystemSetting> SystemSettings { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

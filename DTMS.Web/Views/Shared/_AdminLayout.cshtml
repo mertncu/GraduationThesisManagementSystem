@@ -32,10 +32,10 @@
                     <i class="bi bi-shield-check me-3"></i>Defense Days
                 </a>
                 <div class="mt-4 mb-2 px-4 text-uppercase small text-muted fw-bold">System</div>
-                <a href="#" class="list-group-item list-group-item-action border-0 px-4 py-3">
+                <a asp-controller="System" asp-action="Configuration" class="list-group-item list-group-item-action border-0 px-4 py-3 @(ViewContext.RouteData.Values["Controller"].ToString() == "System" && ViewContext.RouteData.Values["Action"].ToString() == "Configuration" ? "active-nav-link" : "")">
                     <i class="bi bi-gear-fill me-3"></i>Configuration
                 </a>
-                <a href="#" class="list-group-item list-group-item-action border-0 px-4 py-3">
+                <a asp-controller="System" asp-action="AccessLogs" class="list-group-item list-group-item-action border-0 px-4 py-3 @(ViewContext.RouteData.Values["Controller"].ToString() == "System" && ViewContext.RouteData.Values["Action"].ToString() == "AccessLogs" ? "active-nav-link" : "")">
                     <i class="bi bi-shield-lock-fill me-3"></i>Access Logs
                 </a>
             </div>

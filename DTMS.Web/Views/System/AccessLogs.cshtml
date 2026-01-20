@@ -1,0 +1,74 @@
+@model List<GTMS.Application.Features.System.AccessLogs.Queries.GetAccessLogs.AccessLogDto>
+
+@{
+    ViewData["Title"] = "System Access Logs";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 text-gray-800">System Access Logs</h1>
+    <span class="badge bg-info text-dark">Last 100 Entries</span>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Role/Email</th>
+                        <th>Action</th>
+                        <th>Entity</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td class="fw-bold">@log.UserName</td>
+                            <td class="small text-muted">@log.UserEmail</td>
+                            <td>
+                                @if (log.Action == "Login")
+                                {
+                                    <span class="badge bg-success">Login</span>
+                                }
+                                else if (log.Action == "Logout")
+                                {
+                                    <span class="badge bg-secondary">Logout</span>
+                                }
+                                else if (log.Action.Contains("Create"))
+                                {
+                                    <span class="badge bg-primary">@log.Action</span>
+                                }
+                                else if (log.Action.Contains("Delete"))
+                                {
+                                    <span class="badge bg-danger">@log.Action</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@log.Action</span>
+                                }
+                            </td>
+                            <td>@log.EntityName</td>
+                            <td class="small font-monospace text-muted">@(log.Details.Length > 50 ? log.Details.Substring(0, 50) + "..." : log.Details)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.Any())
+        {
+            <div class="text-center p-5 text-muted">
+                <i class="bi bi-list-check fs-1"></i>
+                <p class="mt-2">No activity logs found.</p>
+            </div>
+        }
+    </div>
+</div>

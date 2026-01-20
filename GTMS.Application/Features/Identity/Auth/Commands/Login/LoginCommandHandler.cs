@@ -2,6 +2,7 @@ using GTMS.Application.Common.Exceptions;
 using GTMS.Application.Common.Interfaces;
 using GTMS.Application.Features.Identity.Auth.Dtos;
 using GTMS.Domain.Entities.Identity;
+using GTMS.Domain.Entities.System;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +42,18 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
         var accessToken = _tokenService.GenerateJwtToken(user, roles);
         var refreshToken = _tokenService.GenerateRefreshToken();
         user.RefreshTokens.Add(refreshToken);
+
+        // Audit Log
+        _context.ActivityLogs.Add(new ActivityLog 
+        { 
+            UserId = user.Id, 
+            Action = "Login", 
+            EntityName = "User", 
+            EntityId = user.Id, 
+            Timestamp = DateTime.UtcNow, 
+            DetailJson = $"User logged in via Web UI. IP: Unknown" 
+        });
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, accessToken, refreshToken.Token, DateTime.UtcNow.AddMinutes(15), roles.FirstOrDefault() ?? "User");
