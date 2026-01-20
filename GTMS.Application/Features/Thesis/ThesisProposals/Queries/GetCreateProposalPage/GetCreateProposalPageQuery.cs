@@ -44,7 +44,7 @@ public class GetCreateProposalPageQueryHandler : IRequestHandler<GetCreatePropos
              .AsNoTracking()
              .Select(a => new SelectListItemDto 
              { 
-                 Id = a.Id, 
+                 Id = a.UserId, 
                  Name = $"{a.User.FirstName} {a.User.LastName}" 
              })
              .ToListAsync(cancellationToken);

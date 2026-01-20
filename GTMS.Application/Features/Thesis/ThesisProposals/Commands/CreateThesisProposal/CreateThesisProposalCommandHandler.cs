@@ -1,3 +1,4 @@
+using GTMS.Application.Common.Exceptions;
 using GTMS.Application.Common.Interfaces;
 using GTMS.Domain.Entities.Thesis;
 using MediatR;
@@ -35,6 +36,28 @@ public class CreateThesisProposalCommandHandler : IRequestHandler<CreateThesisPr
             // Fallback or error? Should be seeded.
             // Let's create it if missing for robustness, or throw.
             throw new InvalidOperationException("Application Status 'Pending' not found in database.");
+        }
+
+        // Check if Advisor exists
+        var advisorExists = await _context.Users
+            .AnyAsync(u => u.Id == request.AdvisorId, cancellationToken);
+        if (!advisorExists)
+        {
+             throw new ValidationException(new[] 
+             { 
+                 new FluentValidation.Results.ValidationFailure("AdvisorId", "Selected Advisor does not exist.") 
+             });
+        }
+
+        // Check if Term exists
+        var termExists = await _context.AcademicTerms
+            .AnyAsync(t => t.Id == request.TermId, cancellationToken);
+        if (!termExists)
+        {
+             throw new ValidationException(new[] 
+             { 
+                 new FluentValidation.Results.ValidationFailure("TermId", "Selected Term does not exist.") 
+             });
         }
 
         var entity = new ThesisApplication
