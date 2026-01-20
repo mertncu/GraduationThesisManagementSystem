@@ -49,13 +49,7 @@
                     </select>
                 </div>
                 
-                <div id="studentFields" style="display:none;">
-                     <div class="mb-3">
-                        <label asp-for="StudentNumber" class="form-label"></label>
-                        <input asp-for="StudentNumber" class="form-control" />
-                        <span asp-validation-for="StudentNumber" class="text-danger"></span>
-                    </div>
-                    
+                <div id="academicFields" style="display:none;">
                     <div class="mb-3">
                         <label asp-for="DepartmentId" class="form-label">Department</label>
                         <select asp-for="DepartmentId" class="form-control" asp-items="@(new SelectList(Model.Departments, "Id", "Name"))" id="departmentSelect">
@@ -64,12 +58,20 @@
                          <span asp-validation-for="DepartmentId" class="text-danger"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="ProgramId" class="form-label">Program</label>
-                        <select asp-for="ProgramId" class="form-control" asp-items="@(new SelectList(Model.Programs, "Id", "Name"))" id="programSelect">
-                             <option value="">-- Select Program --</option>
-                        </select>
-                         <span asp-validation-for="ProgramId" class="text-danger"></span>
+                    <div id="studentSpecifics" style="display:none;">
+                         <div class="mb-3">
+                            <label asp-for="ProgramId" class="form-label">Program</label>
+                            <select asp-for="ProgramId" class="form-control" asp-items="@(new SelectList(Model.Programs, "Id", "Name"))" id="programSelect">
+                                 <option value="">-- Select Program --</option>
+                            </select>
+                             <span asp-validation-for="ProgramId" class="text-danger"></span>
+                        </div>
+                        
+                         <div class="mb-3">
+                            <label asp-for="StudentNumber" class="form-label"></label>
+                            <input asp-for="StudentNumber" class="form-control" />
+                            <span asp-validation-for="StudentNumber" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -115,12 +117,19 @@
 
         function toggleFields() {
             var role = document.getElementById('roleSelect').value;
-             var studentFields = document.getElementById('studentFields');
+            var academicFields = document.getElementById('academicFields');
+            var studentSpecifics = document.getElementById('studentSpecifics');
 
-            if (role === 'Student') {
-                studentFields.style.display = 'block';
+            if (role === 'Student' || role === 'Advisor') {
+                academicFields.style.display = 'block';
+                if (role === 'Student') {
+                    studentSpecifics.style.display = 'block';
+                } else {
+                    studentSpecifics.style.display = 'none';
+                }
             } else {
-                studentFields.style.display = 'none';
+                academicFields.style.display = 'none';
+                studentSpecifics.style.display = 'none';
             }
         }
 

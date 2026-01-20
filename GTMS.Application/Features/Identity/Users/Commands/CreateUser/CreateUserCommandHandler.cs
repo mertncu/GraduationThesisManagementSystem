@@ -87,7 +87,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Guid>
             {
                throw new ValidationException(new[] 
             { 
-                 new FluentValidation.Results.ValidationFailure("Role", "Role not found.") 
+                 new FluentValidation.Results.ValidationFailure("DepartmentId", "Department is required for Advisors.") 
             });
             }
 
